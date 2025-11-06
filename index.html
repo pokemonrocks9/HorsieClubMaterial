@@ -603,7 +603,7 @@
             <div style="margin: 24px 0; padding: 20px; background: var(--md-sys-color-surface-variant); border-radius: 20px;">
                 <h3 style="margin-bottom: 12px;">Active Sessions</h3>
                 <div id="activeSessions" style="max-height: 200px; overflow-y: auto;">
-                    <p style="color: var(--md-sys-color-on-surface-variant);">Loading sessions...</p>
+                    <p style="color: var(--md-sys-color-on-surface-variant);">Loading...</p>
                 </div>
                 <div style="display: flex; gap: 12px; margin-top: 12px; flex-wrap: wrap;">
                     <button class="btn" onclick="refreshSessions()">🔄 Refresh</button>
@@ -633,7 +633,7 @@
             </div>
             <div class="input-group">
                 <label for="sessionCode">Session Code:</label>
-                <input type="text" id="sessionCode" placeholder="Enter session code">
+                <input type="text" id="sessionCode" placeholder="Enter session code or click one below">
             </div>
             <button class="btn" onclick="startSession()">🚀 Start Session</button>
         </div>
@@ -1051,23 +1051,90 @@
     }
 
     async function refreshSessions(){
-        if(!S){alert('No session code set');return;}
+        const e=document.getElementById('activeSessions');
+        e.innerHTML='<p style="color: var(--md-sys-color-on-surface-variant);">Loading...</p>';
         try{
-            const r=await fetch(`${API}/sessions/${S}`);
-            const data=await r.json();
-            const div=document.getElementById('activeSessions');
-            if(data.users&&data.users.length>0){
-                div.innerHTML=data.users.map(u=>`
-                    <div style="padding: 12px; margin: 8px 0; background: var(--md-sys-color-surface); border-radius: 12px; border: 1px solid var(--md-sys-color-outline-variant);">
-                        <strong style="color: var(--md-sys-color-on-surface);">${u.name}</strong>
-                        <span style="margin-left: 12px; width: 24px; height: 24px; border-radius: 50%; display: inline-block; background: ${u.color}; vertical-align: middle;"></span>
-                    </div>
-                `).join('');
-            }else{
-                div.innerHTML='<p style="color: var(--md-sys-color-on-surface-variant);">No active users in this session</p>';
+            const r=await fetch(`${API}/picks/sessions`);
+            if(!r.ok){
+                e.innerHTML='<p style="color: var(--md-sys-color-on-surface-variant);">API unavailable</p>';
+                return;
             }
+            const d=await r.json();
+            const sessions={};
+            d.forEach(p=>{
+                if(!sessions[p.session_code]){
+                    sessions[p.session_code]={users:new Set(),colors:{},lastActivity:p.created_at,count:0};
+                }
+                sessions[p.session_code].users.add(p.user_name);
+                if(p.user_color){
+                    sessions[p.session_code].colors[p.user_name]=p.user_color;
+                }
+                sessions[p.session_code].count++;
+            });
+            
+            if(Object.keys(sessions).length===0){
+                e.innerHTML='<p style="color: var(--md-sys-color-on-surface-variant);">No active sessions</p>';
+            }else{
+                let html='<div style="display:flex;flex-direction:column;gap:12px;">';
+                for(const[code,info] of Object.entries(sessions)){
+                    const users=Array.from(info.users);
+                    const userBadges=users.map(u=>{
+                        const color=info.colors[u]||'#ff9800';
+                        return `<span style="display:inline-block;width:24px;height:24px;border-radius:50%;background:${color};margin-left:4px;vertical-align:middle;" title="${u}"></span>`;
+                    }).join('');
+                    const timeAgo=getTimeAgo(new Date(info.lastActivity));
+                    html+=`
+                        <div style="padding:16px;background:var(--md-sys-color-surface);border:1px solid var(--md-sys-color-outline-variant);border-radius:12px;cursor:pointer;transition:all 0.2s;" 
+                             onmouseover="this.style.background='var(--md-sys-color-primary-container)';this.style.borderColor='var(--md-sys-color-primary)'" 
+                             onmouseout="this.style.background='var(--md-sys-color-surface)';this.style.borderColor='var(--md-sys-color-outline-variant)'"
+                             onclick="joinExistingSession('${code}')">
+                            <div style="display:flex;justify-content:space-between;align-items:center;">
+                                <div style="flex:1;">
+                                    <strong style="color:var(--md-sys-color-primary);font-size:16px;">${code}</strong>
+                                    <div style="margin-top:4px;">
+                                        <small style="color:var(--md-sys-color-on-surface-variant);">${users.length} user${users.length>1?'s':''} • ${info.count} picks • ${timeAgo}</small>
+                                        ${userBadges}
+                                    </div>
+                                </div>
+                                <button onclick="event.stopPropagation();deleteSession('${code}')" 
+                                        style="background:var(--md-sys-color-error);color:var(--md-sys-color-on-error);border:none;padding:8px 16px;border-radius:20px;cursor:pointer;font-size:12px;font-weight:500;font-family:'Roboto',sans-serif;">
+                                    Delete
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                }
+                html+='</div>';
+                e.innerHTML=html;
+            }
+        }catch(err){
+            e.innerHTML='<p style="color: var(--md-sys-color-on-surface-variant);">API unavailable</p>';
+        }
+    }
+    
+    function getTimeAgo(date){
+        const seconds=Math.floor((new Date()-date)/1000);
+        if(seconds<60)return 'just now';
+        const minutes=Math.floor(seconds/60);
+        if(minutes<60)return `${minutes}m ago`;
+        const hours=Math.floor(minutes/60);
+        if(hours<24)return `${hours}h ago`;
+        const days=Math.floor(hours/24);
+        return `${days}d ago`;
+    }
+    
+    function joinExistingSession(code){
+        document.getElementById('sessionCode').value=code;
+        S=code;
+    }
+    
+    async function deleteSession(code){
+        if(!confirm(`Delete all picks for session "${code}"?`))return;
+        try{
+            await fetch(`${API}/picks/sessions/${code}`,{method:'DELETE'});
+            refreshSessions();
         }catch(e){
-            document.getElementById('activeSessions').innerHTML='<p style="color: var(--md-sys-color-error);">Error loading sessions</p>';
+            alert('Failed to delete session');
         }
     }
 
@@ -1096,7 +1163,10 @@
         const savedUser=localStorage.getItem('username');
         const savedSession=localStorage.getItem('sessionCode');
         if(savedUser)document.getElementById('username').value=savedUser;
-        if(savedSession)document.getElementById('sessionCode').value=savedSession;
+        if(savedSession){
+            document.getElementById('sessionCode').value=savedSession;
+            S=savedSession;
+        }
         
         refreshSessions();
         
