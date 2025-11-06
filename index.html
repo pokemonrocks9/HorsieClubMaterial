@@ -682,6 +682,7 @@
     const RACES='https://raw.githubusercontent.com/pokemonrocks9/HorsieClub/main/races.json';
     let S='',U='',C='#f44336',D='',T='',R=null,P=new Set(),pollInterval=null;
     let races=[];
+    let allSessionPicks=[];
 
     function updateTheme(c){
         C=c;
@@ -706,6 +707,7 @@
         document.getElementById('setup').classList.add('hidden');
         document.getElementById('backToHomeBtn').classList.remove('hidden');
         await loadRaces();
+        await loadAllSessionPicks();
         showDateSelector();
     }
     
@@ -714,6 +716,23 @@
             races=await(await fetch(RACES)).json();
         }catch(e){
             alert('Error loading races: '+e.message);
+        }
+    }
+    
+    async function loadAllSessionPicks(){
+        if(!S)return;
+        try{
+            const r=await fetch(`${API}/picks?session=${S}`);
+            if(r.ok){
+                const data=await r.json();
+                allSessionPicks=data;
+                console.log(`Loaded ${allSessionPicks.length} total picks for session ${S}`);
+            }else{
+                allSessionPicks=[];
+            }
+        }catch(e){
+            allSessionPicks=[];
+            console.error('Failed to load session picks:',e);
         }
     }
 
@@ -753,11 +772,15 @@
     }
 
     function checkDateHasPicks(date){
+        // Check both API picks and localStorage
+        const hasApiPicks=allSessionPicks.some(p=>races.find(r=>r.id===p.race_id&&r.date===date));
+        if(hasApiPicks)return true;
+        
+        // Also check localStorage
         if(!S)return false;
-        const pattern=new RegExp(`^${S}_.*_${U}$`);
         for(let i=0;i<localStorage.length;i++){
             const k=localStorage.key(i);
-            if(k&&pattern.test(k)){
+            if(k&&k.startsWith(`${S}_`)){
                 const raceId=k.split('_')[1];
                 const matchingRaces=races.filter(r=>r.id===raceId&&r.date===date);
                 if(matchingRaces.length>0)return true;
@@ -800,10 +823,18 @@
     }
 
     function checkTrackHasPicks(track){
+        // Check both API picks and localStorage
+        const hasApiPicks=allSessionPicks.some(p=>races.find(r=>r.id===p.race_id&&r.track===track&&r.date===D));
+        if(hasApiPicks)return true;
+        
+        // Also check localStorage
         if(!S||!D)return false;
         const trackRaces=races.filter(r=>r.date===D&&r.track===track);
         for(const race of trackRaces){
-            if(localStorage.getItem(`${S}_${race.id}_${U}`))return true;
+            for(let i=0;i<localStorage.length;i++){
+                const k=localStorage.key(i);
+                if(k&&k.startsWith(`${S}_${race.id}_`))return true;
+            }
         }
         return false;
     }
@@ -846,8 +877,16 @@
     }
 
     function checkRaceHasPicks(raceId){
-        const k=`${S}_${raceId}_${U}`;
-        return localStorage.getItem(k)!==null;
+        // Check both API picks and localStorage
+        const hasApiPicks=allSessionPicks.some(p=>p.race_id===raceId);
+        if(hasApiPicks)return true;
+        
+        // Also check localStorage
+        for(let i=0;i<localStorage.length;i++){
+            const k=localStorage.key(i);
+            if(k&&k.startsWith(`${S}_${raceId}_`))return true;
+        }
+        return false;
     }
 
     async function selectRace(race){
@@ -951,19 +990,27 @@
         
         try{
             const r=await fetch(`${API}/picks?session=${S}&race=${R.id}`);
-            if(r.ok)(await r.json()).forEach(p=>{
-                picks[p.user_name]=JSON.parse(p.horse_numbers);
-                p.user_color&&(colors[p.user_name]=p.user_color);
-            });
-        }catch(e){}
+            if(r.ok){
+                const data=await r.json();
+                data.forEach(p=>{
+                    picks[p.user_name]=JSON.parse(p.horse_numbers);
+                    if(p.user_color)colors[p.user_name]=p.user_color;
+                });
+            }
+        }catch(e){
+            console.error('Failed to load picks from API:',e);
+        }
+        
         for(let i=0;i<localStorage.length;i++){
             const k=localStorage.key(i);
             if(k&&k.startsWith(`${S}_${R.id}_`)&&!k.endsWith('_confirmed')){
                 const u=k.split('_').pop();
                 if(!picks[u]){
-                    const d=JSON.parse(localStorage.getItem(k));
-                    picks[u]=d.horses;
-                    d.color&&(colors[u]=d.color);
+                    try{
+                        const d=JSON.parse(localStorage.getItem(k));
+                        picks[u]=d.horses;
+                        if(d.color)colors[u]=d.color;
+                    }catch(e){}
                 }
             }
         }
@@ -1078,14 +1125,16 @@
                 return;
             }
             const d=await r.json();
+            console.log('Sessions data:',d);
+            
             const sessions={};
             d.forEach(p=>{
                 if(!sessions[p.session_code]){
-                    sessions[p.session_code]={users:new Set(),colors:{},lastActivity:p.created_at,count:0};
+                    sessions[p.session_code]={users:{},lastActivity:p.created_at,count:0};
                 }
-                sessions[p.session_code].users.add(p.user_name);
-                if(p.user_color){
-                    sessions[p.session_code].colors[p.user_name]=p.user_color;
+                // Store user with their color
+                if(!sessions[p.session_code].users[p.user_name]){
+                    sessions[p.session_code].users[p.user_name]=p.user_color||'#ff9800';
                 }
                 sessions[p.session_code].count++;
             });
@@ -1095,10 +1144,11 @@
             }else{
                 let html='<div style="display:flex;flex-direction:column;gap:12px;">';
                 for(const[code,info] of Object.entries(sessions)){
-                    const users=Array.from(info.users);
-                    const userBadges=users.map(u=>{
-                        const color=info.colors[u]||'#ff9800';
-                        return `<span style="display:inline-block;width:24px;height:24px;border-radius:50%;background:${color};margin-left:4px;vertical-align:middle;" title="${u}"></span>`;
+                    const userNames=Object.keys(info.users);
+                    const userBadges=userNames.map(userName=>{
+                        const color=info.users[userName];
+                        const initial=userName.charAt(0).toUpperCase();
+                        return `<span style="display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;background:${color};color:white;font-weight:500;font-size:12px;margin-left:4px;box-shadow:var(--md-sys-elevation-level1);" title="${userName}">${initial}</span>`;
                     }).join('');
                     const timeAgo=getTimeAgo(new Date(info.lastActivity));
                     html+=`
@@ -1106,16 +1156,18 @@
                              onmouseover="this.style.background='var(--md-sys-color-primary-container)';this.style.borderColor='var(--md-sys-color-primary)'" 
                              onmouseout="this.style.background='var(--md-sys-color-surface)';this.style.borderColor='var(--md-sys-color-outline-variant)'"
                              onclick="joinExistingSession('${code}')">
-                            <div style="display:flex;justify-content:space-between;align-items:center;">
+                            <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;">
                                 <div style="flex:1;">
                                     <strong style="color:var(--md-sys-color-primary);font-size:16px;">${code}</strong>
-                                    <div style="margin-top:4px;">
-                                        <small style="color:var(--md-sys-color-on-surface-variant);">${users.length} user${users.length>1?'s':''} • ${info.count} picks • ${timeAgo}</small>
+                                    <div style="margin-top:8px;display:flex;align-items:center;flex-wrap:wrap;gap:4px;">
+                                        <small style="color:var(--md-sys-color-on-surface-variant);">${userNames.length} user${userNames.length>1?'s':''} • ${info.count} picks • ${timeAgo}</small>
+                                    </div>
+                                    <div style="margin-top:8px;display:flex;align-items:center;flex-wrap:wrap;gap:4px;">
                                         ${userBadges}
                                     </div>
                                 </div>
                                 <button onclick="event.stopPropagation();deleteSession('${code}')" 
-                                        style="background:var(--md-sys-color-error);color:var(--md-sys-color-on-error);border:none;padding:8px 16px;border-radius:20px;cursor:pointer;font-size:12px;font-weight:500;font-family:'Roboto',sans-serif;">
+                                        style="background:var(--md-sys-color-error);color:var(--md-sys-color-on-error);border:none;padding:8px 16px;border-radius:20px;cursor:pointer;font-size:12px;font-weight:500;font-family:'Roboto',sans-serif;box-shadow:var(--md-sys-elevation-level1);">
                                     Delete
                                 </button>
                             </div>
@@ -1126,6 +1178,7 @@
                 e.innerHTML=html;
             }
         }catch(err){
+            console.error('Error loading sessions:',err);
             e.innerHTML='<p style="color: var(--md-sys-color-on-surface-variant);">API unavailable</p>';
         }
     }
