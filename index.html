@@ -678,8 +678,10 @@
     </div>
 
     <script>
-    const API='https://jra-api.deno.dev';
+    const API='https://horsie.tytygoins.workers.dev';
+    const RACES='https://raw.githubusercontent.com/pokemonrocks9/HorsieClub/main/races.json';
     let S='',U='',C='#f44336',D='',T='',R=null,P=new Set(),pollInterval=null;
+    let races=[];
 
     function updateTheme(c){
         C=c;
@@ -703,44 +705,62 @@
         localStorage.setItem('sessionCode',S);
         document.getElementById('setup').classList.add('hidden');
         document.getElementById('backToHomeBtn').classList.remove('hidden');
+        await loadRaces();
         showDateSelector();
+    }
+    
+    async function loadRaces(){
+        try{
+            races=await(await fetch(RACES)).json();
+        }catch(e){
+            alert('Error loading races: '+e.message);
+        }
     }
 
     async function showDateSelector(){
         stopPoll();
-        try{
-            const r=await fetch(`${API}/dates`);
-            const dates=await r.json();
-            const list=document.getElementById('dateList');
-            list.innerHTML='';
-            
-            for(const d of dates){
-                const hasPicks=await checkDateHasPicks(d.date);
-                const card=document.createElement('div');
-                card.className='selector-card'+(hasPicks?' has-picks':'');
-                card.onclick=()=>selectDate(d.date);
-                
-                const info=document.createElement('div');
-                info.className='date-info';
-                info.innerHTML=`
-                    <span class="date-badge">${d.date}</span>
-                    <span class="day-name">${d.day_of_week}</span>
-                `;
-                card.appendChild(info);
-                list.appendChild(card);
+        const byDate={};
+        races.forEach(r=>{
+            if(r.date){
+                if(!byDate[r.date])byDate[r.date]=[];
+                byDate[r.date].push(r);
             }
-            document.getElementById('dateSelector').classList.remove('hidden');
-        }catch(e){alert('Error loading dates: '+e.message);}
+        });
+        
+        const list=document.getElementById('dateList');
+        list.innerHTML='';
+        
+        Object.keys(byDate).sort((a,b)=>new Date(a)-new Date(b)).forEach(d=>{
+            const dt=new Date(d+'T00:00:00');
+            const day=dt.toLocaleDateString('en-US',{weekday:'short'});
+            const dateStr=dt.toLocaleDateString('en-US',{month:'short',day:'numeric'});
+            const hasPicks=checkDateHasPicks(d);
+            
+            const card=document.createElement('div');
+            card.className='selector-card'+(hasPicks?' has-picks':'');
+            card.onclick=()=>selectDate(d);
+            card.innerHTML=`
+                <div class="date-info">
+                    <span class="date-badge">${dateStr}</span>
+                    <span class="day-name">${day}</span>
+                </div>
+                <span class="race-count" style="color: var(--md-sys-color-on-surface-variant);">${byDate[d].length} races</span>
+            `;
+            list.appendChild(card);
+        });
+        
+        document.getElementById('dateSelector').classList.remove('hidden');
     }
 
-    async function checkDateHasPicks(date){
+    function checkDateHasPicks(date){
         if(!S)return false;
-        const pattern=new RegExp(`^${S}_\\d+_\\d+_${U}$`);
+        const pattern=new RegExp(`^${S}_.*_${U}$`);
         for(let i=0;i<localStorage.length;i++){
             const k=localStorage.key(i);
             if(k&&pattern.test(k)){
                 const raceId=k.split('_')[1];
-                if(raceId.startsWith(date.replace(/-/g,'')))return true;
+                const matchingRaces=races.filter(r=>r.id===raceId&&r.date===date);
+                if(matchingRaces.length>0)return true;
             }
         }
         return false;
@@ -754,74 +774,75 @@
 
     async function showTrackSelector(){
         stopPoll();
-        try{
-            const r=await fetch(`${API}/tracks?date=${D}`);
-            const tracks=await r.json();
-            const list=document.getElementById('trackList');
-            list.innerHTML='';
-            document.getElementById('trackSelectorTitle').textContent=`Select Track (${D})`;
-            
-            for(const t of tracks){
-                const hasPicks=await checkTrackHasPicks(t.track_code);
-                const card=document.createElement('div');
-                card.className='track-card'+(hasPicks?' has-picks':'');
-                card.onclick=()=>selectTrack(t.track_code,t.track_name);
-                card.innerHTML=`
-                    <div class="track-name">${t.track_name}</div>
-                    <div class="race-count">${t.race_count} races</div>
-                `;
-                list.appendChild(card);
-            }
-            document.getElementById('trackSelector').classList.remove('hidden');
-        }catch(e){alert('Error loading tracks: '+e.message);}
+        const byTrack={};
+        races.filter(r=>r.date===D).forEach(r=>{
+            if(!byTrack[r.track])byTrack[r.track]=[];
+            byTrack[r.track].push(r);
+        });
+        
+        const list=document.getElementById('trackList');
+        list.innerHTML='';
+        const dt=new Date(D+'T00:00:00');
+        document.getElementById('trackSelectorTitle').textContent=`Select Track (${dt.toLocaleDateString('en-US',{month:'short',day:'numeric'})})`;
+        
+        Object.keys(byTrack).sort().forEach(t=>{
+            const hasPicks=checkTrackHasPicks(t);
+            const card=document.createElement('div');
+            card.className='track-card'+(hasPicks?' has-picks':'');
+            card.onclick=()=>selectTrack(t);
+            card.innerHTML=`
+                <div class="track-name">${t}</div>
+                <div class="race-count">${byTrack[t].length} races</div>
+            `;
+            list.appendChild(card);
+        });
+        document.getElementById('trackSelector').classList.remove('hidden');
     }
 
-    async function checkTrackHasPicks(trackCode){
+    function checkTrackHasPicks(track){
         if(!S||!D)return false;
-        const datePrefix=D.replace(/-/g,'');
-        const pattern=new RegExp(`^${S}_${datePrefix}${trackCode}\\d+_\\d+_${U}$`);
-        for(let i=0;i<localStorage.length;i++){
-            const k=localStorage.key(i);
-            if(k&&pattern.test(k))return true;
+        const trackRaces=races.filter(r=>r.date===D&&r.track===track);
+        for(const race of trackRaces){
+            if(localStorage.getItem(`${S}_${race.id}_${U}`))return true;
         }
         return false;
     }
 
-    async function selectTrack(code,name){
-        T=code;
+    async function selectTrack(track){
+        T=track;
         document.getElementById('trackSelector').classList.add('hidden');
-        showRaceSelector(name);
+        showRaceSelector();
     }
 
-    async function showRaceSelector(trackName){
+    async function showRaceSelector(){
         stopPoll();
-        try{
-            const r=await fetch(`${API}/races?date=${D}&track=${T}`);
-            const races=await r.json();
-            const list=document.getElementById('raceList');
-            list.innerHTML='';
-            document.getElementById('raceSelectorTitle').textContent=`Select Race at ${trackName}`;
+        const racesList=races.filter(r=>r.date===D&&r.track===T);
+        racesList.sort((a,b)=>(a.raceNumber||a.id)-(b.raceNumber||b.id));
+        
+        document.getElementById('raceSelectorTitle').textContent=`Select Race at ${T}`;
+        const list=document.getElementById('raceList');
+        list.innerHTML='';
+        
+        racesList.forEach(race=>{
+            const hasPicks=checkRaceHasPicks(race.id);
+            const card=document.createElement('div');
+            card.className='race-card'+(hasPicks?' has-picks':'');
+            card.onclick=()=>selectRace(race);
             
-            for(const race of races){
-                const hasPicks=checkRaceHasPicks(race.id);
-                const card=document.createElement('div');
-                card.className='race-card'+(hasPicks?' has-picks':'');
-                card.onclick=()=>selectRace(race);
-                
-                const gradeHTML=race.grade?`<span class="grade-badge">${race.grade}</span>`:'';
-                card.innerHTML=`
-                    <div style="display: flex; align-items: center;">
-                        <span class="race-number">R${race.number}</span>
-                        <div class="race-info">
-                            <div class="race-title">${race.name}${gradeHTML}</div>
-                            <div class="race-details">${race.distance}m • ${race.surface} • ${race.post_time}</div>
-                        </div>
+            const gradeHTML=race.grade?`<span class="grade-badge">${race.grade}</span>`:'';
+            const raceNum=race.raceNumber||race.id;
+            card.innerHTML=`
+                <div style="display: flex; align-items: center;">
+                    <span class="race-number">R${raceNum}</span>
+                    <div class="race-info">
+                        <div class="race-title">${race.title}${gradeHTML}</div>
+                        <div class="race-details">${race.distance} ${race.surface} - ${race.horses.length} horses</div>
                     </div>
-                `;
-                list.appendChild(card);
-            }
-            document.getElementById('raceSelector').classList.remove('hidden');
-        }catch(e){alert('Error loading races: '+e.message);}
+                </div>
+            `;
+            list.appendChild(card);
+        });
+        document.getElementById('raceSelector').classList.remove('hidden');
     }
 
     function checkRaceHasPicks(raceId){
@@ -842,33 +863,30 @@
         }
         
         document.getElementById('raceSelector').classList.add('hidden');
-        document.getElementById('raceTitle').textContent=`R${R.number}: ${R.name}`;
+        const raceNum=R.raceNumber||R.id;
+        document.getElementById('raceTitle').textContent=`R${raceNum}: ${R.title}`;
         const gradeHTML=R.grade?`<span class="grade-badge">${R.grade}</span>`:'';
-        document.getElementById('raceInfo').innerHTML=`${R.distance}m • ${R.surface} • ${R.post_time}${gradeHTML}`;
+        document.getElementById('raceInfo').innerHTML=`${R.distance} ${R.surface} - ${R.horses.length} horses${gradeHTML}`;
         
-        try{
-            const r=await fetch(`${API}/horses?race=${R.id}`);
-            const horses=await r.json();
-            const list=document.getElementById('horseList');
-            list.innerHTML='';
-            
-            horses.forEach(h=>{
-                const card=document.createElement('div');
-                card.className='horse-card'+(P.has(h.number)?' selected':'');
-                card.setAttribute('data-horse-number',h.number);
-                card.onclick=()=>toggleHorse(h.number);
-                card.innerHTML=`
-                    <span class="horse-number">${h.number}</span>
-                    <span class="horse-name">${h.name}</span>
-                `;
-                list.appendChild(card);
-            });
-            
-            await loadAllPicks();
-            document.getElementById('raceDetail').classList.remove('hidden');
-            updateSaveButton();
-            startPoll();
-        }catch(e){alert('Error loading horses: '+e.message);}
+        const list=document.getElementById('horseList');
+        list.innerHTML='';
+        
+        R.horses.forEach(h=>{
+            const card=document.createElement('div');
+            card.className='horse-card'+(P.has(h.number)?' selected':'');
+            card.setAttribute('data-horse-number',h.number);
+            card.onclick=()=>toggleHorse(h.number);
+            card.innerHTML=`
+                <span class="horse-number">${h.number}</span>
+                <span class="horse-name">${h.name}</span>
+            `;
+            list.appendChild(card);
+        });
+        
+        await loadAllPicks();
+        document.getElementById('raceDetail').classList.remove('hidden');
+        updateSaveButton();
+        startPoll();
     }
 
     function toggleHorse(n){
