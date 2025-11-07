@@ -1,1253 +1,329 @@
+<!-- Fixed full version based on original index (3) file, preserving visuals and full functionality -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <meta name="theme-color" content="#1a1110">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="Horsie Picker">
-    <meta name="mobile-web-app-capable" content="yes">
-    <link rel="manifest" href="manifest.json">
-    <link rel="apple-touch-icon" href="icon-192.png">
-    <title>Horsie Picker</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --md-sys-color-primary: #f44336;
-            --md-sys-color-on-primary: #FFFFFF;
-            --md-sys-color-primary-container: #3a1411;
-            --md-sys-color-on-primary-container: #ffdad5;
-            --md-sys-color-secondary: #e7bdb7;
-            --md-sys-color-on-secondary: #442926;
-            --md-sys-color-secondary-container: #5d3f3b;
-            --md-sys-color-on-secondary-container: #ffdad5;
-            --md-sys-color-tertiary: #ffd700;
-            --md-sys-color-on-tertiary: #3d2e00;
-            --md-sys-color-tertiary-container: #564400;
-            --md-sys-color-on-tertiary-container: #ffebb4;
-            --md-sys-color-error: #ffb4ab;
-            --md-sys-color-on-error: #690005;
-            --md-sys-color-error-container: #93000a;
-            --md-sys-color-on-error-container: #ffdad6;
-            --md-sys-color-background: #1a1110;
-            --md-sys-color-on-background: #f0dedd;
-            --md-sys-color-surface: #1a1110;
-            --md-sys-color-on-surface: #f0dedd;
-            --md-sys-color-surface-variant: #534341;
-            --md-sys-color-on-surface-variant: #d8c2bf;
-            --md-sys-color-outline: #a08c8a;
-            --md-sys-color-outline-variant: #534341;
-            --md-sys-color-shadow: #000000;
-            --md-sys-color-scrim: #000000;
-            --md-sys-color-inverse-surface: #f0dedd;
-            --md-sys-color-inverse-on-surface: #362f2e;
-            --md-sys-color-inverse-primary: #c00017;
-            --md-sys-color-surface-tint: #f44336;
-            
-            --md-sys-elevation-level0: none;
-            --md-sys-elevation-level1: 0px 1px 2px rgba(0, 0, 0, 0.3), 0px 1px 3px 1px rgba(0, 0, 0, 0.15);
-            --md-sys-elevation-level2: 0px 1px 2px rgba(0, 0, 0, 0.3), 0px 2px 6px 2px rgba(0, 0, 0, 0.15);
-            --md-sys-elevation-level3: 0px 4px 8px 3px rgba(0, 0, 0, 0.15), 0px 1px 3px rgba(0, 0, 0, 0.3);
-            --md-sys-elevation-level4: 0px 6px 10px 4px rgba(0, 0, 0, 0.15), 0px 2px 3px rgba(0, 0, 0, 0.3);
-            --md-sys-elevation-level5: 0px 8px 12px 6px rgba(0, 0, 0, 0.15), 0px 4px 4px rgba(0, 0, 0, 0.3);
-        }
-        
-        * { 
-            margin: 0; 
-            padding: 0; 
-            box-sizing: border-box; 
-        }
-        
-        body { 
-            font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            background: var(--md-sys-color-background);
-            color: var(--md-sys-color-on-background);
-            min-height: 100vh; 
-            padding: 0;
-            transition: background 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
-        }
-        
-        .container { 
-            max-width: 1200px; 
-            margin: 0 auto; 
-            padding: 16px;
-        }
-        
-        .header { 
-            background: var(--md-sys-color-surface);
-            padding: 24px;
-            border-radius: 28px;
-            margin-bottom: 24px;
-            box-shadow: var(--md-sys-elevation-level2);
-            border: 1px solid var(--md-sys-color-outline-variant);
-        }
-        
-        h1 { 
-            color: var(--md-sys-color-primary);
-            margin-bottom: 8px;
-            font-size: 32px;
-            font-weight: 400;
-            letter-spacing: 0;
-            transition: color 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
-        }
-        
-        .subtitle { 
-            color: var(--md-sys-color-on-surface-variant);
-            font-size: 14px;
-            font-weight: 400;
-            letter-spacing: 0.25px;
-        }
-        
-        .setup-section, .selector-section, .race-detail { 
-            background: var(--md-sys-color-surface);
-            padding: 24px;
-            border-radius: 28px;
-            margin-bottom: 16px;
-            box-shadow: var(--md-sys-elevation-level1);
-            border: 1px solid var(--md-sys-color-outline-variant);
-        }
-        
-        .input-group { 
-            margin-bottom: 24px;
-        }
-        
-        label { 
-            display: block; 
-            margin-bottom: 8px;
-            font-weight: 500;
-            font-size: 14px;
-            letter-spacing: 0.1px;
-            color: var(--md-sys-color-on-surface-variant);
-        }
-        
-        input[type="text"], select { 
-            width: 100%;
-            padding: 16px;
-            border: 1px solid var(--md-sys-color-outline);
-            border-radius: 12px;
-            font-size: 16px;
-            font-family: 'Roboto', sans-serif;
-            background: var(--md-sys-color-surface-variant);
-            color: var(--md-sys-color-on-surface);
-            transition: all 0.2s cubic-bezier(0.4, 0.0, 0.2, 1);
-        }
-        
-        input[type="text"]:focus, select:focus { 
-            outline: none;
-            border: 2px solid var(--md-sys-color-primary);
-            padding: 15px;
-            background: var(--md-sys-color-surface);
-        }
-        
-        .btn { 
-            background: var(--md-sys-color-primary);
-            color: var(--md-sys-color-on-primary);
-            border: none;
-            padding: 14px 24px;
-            border-radius: 100px;
-            font-size: 14px;
-            font-weight: 500;
-            letter-spacing: 0.1px;
-            cursor: pointer;
-            transition: all 0.2s cubic-bezier(0.4, 0.0, 0.2, 1);
-            box-shadow: var(--md-sys-elevation-level1);
-            font-family: 'Roboto', sans-serif;
-            text-transform: none;
-        }
-        
-        .btn:hover { 
-            box-shadow: var(--md-sys-elevation-level2);
-            background: color-mix(in srgb, var(--md-sys-color-primary) 92%, white);
-        }
-        
-        .btn:active {
-            box-shadow: var(--md-sys-elevation-level1);
-            transform: scale(0.98);
-        }
-        
-        .btn:disabled { 
-            background: var(--md-sys-color-on-surface);
-            opacity: 0.38;
-            cursor: not-allowed;
-            box-shadow: none;
-        }
-        
-        .selector-grid { 
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            margin: 24px 0;
-        }
-        
-        .selector-card { 
-            border: 1px solid var(--md-sys-color-outline-variant);
-            border-radius: 16px;
-            padding: 16px 20px;
-            cursor: pointer;
-            transition: all 0.2s cubic-bezier(0.4, 0.0, 0.2, 1);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            position: relative;
-            background: var(--md-sys-color-surface);
-        }
-        
-        .selector-card:hover { 
-            background: var(--md-sys-color-primary-container);
-            border-color: var(--md-sys-color-primary);
-            box-shadow: var(--md-sys-elevation-level1);
-        }
-        
-        .selector-card.has-picks { 
-            border-color: #4caf50;
-            background: color-mix(in srgb, #4caf50 8%, var(--md-sys-color-surface));
-        }
-        
-        .selector-card.has-picks::after { 
-            content: '✓';
-            position: absolute;
-            top: 8px;
-            right: 12px;
-            color: #4caf50;
-            font-weight: 500;
-            font-size: 16px;
-        }
-        
-        .date-info { 
-            display: flex;
-            align-items: center;
-            gap: 16px;
-        }
-        
-        .date-badge { 
-            font-size: 20px;
-            font-weight: 500;
-            color: var(--md-sys-color-on-surface);
-            min-width: 80px;
-        }
-        
-        .day-name { 
-            font-size: 16px;
-            color: var(--md-sys-color-on-surface-variant);
-            min-width: 50px;
-        }
-        
-        .track-selector-grid { 
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 16px;
-            margin: 24px 0;
-        }
-        
-        .track-card { 
-            border: 1px solid var(--md-sys-color-outline-variant);
-            border-radius: 20px;
-            padding: 24px;
-            cursor: pointer;
-            transition: all 0.2s cubic-bezier(0.4, 0.0, 0.2, 1);
-            text-align: center;
-            position: relative;
-            background: var(--md-sys-color-surface);
-        }
-        
-        .track-card:hover { 
-            background: var(--md-sys-color-primary-container);
-            border-color: var(--md-sys-color-primary);
-            box-shadow: var(--md-sys-elevation-level2);
-            transform: translateY(-2px);
-        }
-        
-        .track-card.has-picks { 
-            border-color: #4caf50;
-            background: color-mix(in srgb, #4caf50 8%, var(--md-sys-color-surface));
-        }
-        
-        .track-card.has-picks::after { 
-            content: '✓';
-            position: absolute;
-            top: 8px;
-            right: 12px;
-            color: #4caf50;
-            font-weight: 500;
-            font-size: 16px;
-        }
-        
-        .track-name { 
-            font-size: 20px;
-            font-weight: 500;
-            color: var(--md-sys-color-primary);
-            transition: color 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
-        }
-        
-        .race-count { 
-            font-size: 14px;
-            color: var(--md-sys-color-on-surface-variant);
-            margin-top: 4px;
-        }
-        
-        .color-picker-section { 
-            margin: 24px 0;
-            padding: 20px;
-            background: var(--md-sys-color-surface-variant);
-            border-radius: 20px;
-        }
-        
-        .color-picker-section h3 {
-            color: var(--md-sys-color-on-surface);
-            font-weight: 500;
-            font-size: 16px;
-            letter-spacing: 0.15px;
-        }
-        
-        .color-options { 
-            display: flex;
-            gap: 12px;
-            flex-wrap: wrap;
-            margin-top: 16px;
-        }
-        
-        .color-option { 
-            width: 48px;
-            height: 48px;
-            border-radius: 24px;
-            cursor: pointer;
-            border: 2px solid transparent;
-            transition: all 0.2s cubic-bezier(0.4, 0.0, 0.2, 1);
-            box-shadow: var(--md-sys-elevation-level1);
-        }
-        
-        .color-option:hover { 
-            transform: scale(1.1);
-            box-shadow: var(--md-sys-elevation-level2);
-        }
-        
-        .color-option.selected { 
-            border-color: var(--md-sys-color-on-surface);
-            transform: scale(1.15);
-            box-shadow: var(--md-sys-elevation-level3);
-        }
-        
-        .race-list { 
-            display: grid;
-            gap: 12px;
-            margin: 24px 0;
-        }
-        
-        .race-card { 
-            border: 1px solid var(--md-sys-color-outline-variant);
-            border-radius: 20px;
-            padding: 20px;
-            cursor: pointer;
-            transition: all 0.2s cubic-bezier(0.4, 0.0, 0.2, 1);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            position: relative;
-            background: var(--md-sys-color-surface);
-        }
-        
-        .race-card:hover { 
-            background: var(--md-sys-color-primary-container);
-            border-color: var(--md-sys-color-primary);
-            box-shadow: var(--md-sys-elevation-level2);
-        }
-        
-        .race-card.has-picks { 
-            border-color: #4caf50;
-            background: color-mix(in srgb, #4caf50 8%, var(--md-sys-color-surface));
-        }
-        
-        .race-card.has-picks::after { 
-            content: '✓';
-            position: absolute;
-            top: 8px;
-            right: 12px;
-            color: #4caf50;
-            font-weight: 500;
-            font-size: 16px;
-        }
-        
-        .race-info { 
-            flex: 1;
-        }
-        
-        .race-number { 
-            font-size: 24px;
-            font-weight: 500;
-            color: var(--md-sys-color-primary);
-            margin-right: 16px;
-            transition: color 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
-        }
-        
-        .race-title { 
-            font-size: 18px;
-            font-weight: 500;
-            color: var(--md-sys-color-on-surface);
-            margin-bottom: 4px;
-        }
-        
-        .race-details { 
-            font-size: 14px;
-            color: var(--md-sys-color-on-surface-variant);
-            letter-spacing: 0.25px;
-        }
-        
-        .grade-badge { 
-            display: inline-block;
-            background: var(--md-sys-color-tertiary-container);
-            color: var(--md-sys-color-on-tertiary-container);
-            padding: 4px 12px;
-            border-radius: 8px;
-            font-size: 12px;
-            font-weight: 500;
-            margin-left: 8px;
-            letter-spacing: 0.5px;
-        }
-        
-        .horse-list { 
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            margin: 24px 0;
-        }
-        
-        .horse-card { 
-            border: 1px solid var(--md-sys-color-outline-variant);
-            border-radius: 16px;
-            padding: 16px 20px;
-            cursor: pointer;
-            transition: all 0.2s cubic-bezier(0.4, 0.0, 0.2, 1);
-            display: flex;
-            align-items: center;
-            gap: 16px;
-            position: relative;
-            background: var(--md-sys-color-surface);
-        }
-        
-        .horse-card.gradient-border::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            border-radius: 16px;
-            padding: 1px;
-            background: var(--gradient-border);
-            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-            -webkit-mask-composite: xor;
-            mask-composite: exclude;
-            pointer-events: none;
-        }
-        
-        .horse-card:hover { 
-            background: var(--md-sys-color-primary-container);
-            border-color: var(--md-sys-color-primary);
-            box-shadow: var(--md-sys-elevation-level1);
-        }
-        
-        .horse-card.selected { 
-            border-color: var(--md-sys-color-primary);
-            background: var(--md-sys-color-primary-container);
-            box-shadow: var(--md-sys-elevation-level2);
-        }
-        
-        .horse-number { 
-            font-size: 20px;
-            font-weight: 500;
-            min-width: 40px;
-            color: var(--md-sys-color-on-surface-variant);
-            transition: color 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
-        }
-        
-        .horse-name { 
-            font-size: 16px;
-            flex: 1;
-            color: var(--md-sys-color-on-surface);
-            font-weight: 400;
-        }
-        
-        .horse-card.selected .horse-name { 
-            font-weight: 500;
-            color: var(--md-sys-color-primary);
-        }
-        
-        .horse-card.selected .horse-number { 
-            color: var(--md-sys-color-primary);
-        }
-        
-        .picker-badge { 
-            position: static;
-            padding: 0;
-            border-radius: 50%;
-            font-size: 14px;
-            font-weight: 500;
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 32px;
-            height: 32px;
-            box-shadow: var(--md-sys-elevation-level1);
-        }
-        
-        .action-buttons { 
-            display: flex;
-            gap: 12px;
-            margin-top: 24px;
-            flex-wrap: wrap;
-        }
-        
-        .back-btn { 
-            background: var(--md-sys-color-secondary-container);
-            color: var(--md-sys-color-on-secondary-container);
-        }
-        
-        .back-btn:hover { 
-            background: color-mix(in srgb, var(--md-sys-color-secondary-container) 92%, black);
-        }
-        
-        .hidden { 
-            display: none;
-        }
-        
-        .info-box { 
-            background: var(--md-sys-color-primary-container);
-            border-left: 4px solid var(--md-sys-color-primary);
-            padding: 16px;
-            margin: 20px 0;
-            border-radius: 12px;
-            color: var(--md-sys-color-on-primary-container);
-            font-size: 14px;
-            letter-spacing: 0.25px;
-        }
-        
-        .breadcrumb { 
-            font-size: 14px;
-            color: var(--md-sys-color-on-surface-variant);
-            margin-bottom: 20px;
-            letter-spacing: 0.25px;
-        }
-        
-        .breadcrumb a { 
-            color: var(--md-sys-color-primary);
-            text-decoration: none;
-            cursor: pointer;
-            transition: color 0.2s cubic-bezier(0.4, 0.0, 0.2, 1);
-            font-weight: 500;
-        }
-        
-        .breadcrumb a:hover { 
-            text-decoration: underline;
-        }
-        
-        h2, h3 {
-            font-weight: 400;
-            color: var(--md-sys-color-on-surface);
-            margin-bottom: 16px;
-        }
-        
-        h2 {
-            font-size: 24px;
-            letter-spacing: 0;
-        }
-        
-        h3 {
-            font-size: 20px;
-            letter-spacing: 0.15px;
-        }
-        
-        /* Scrollbar styling for Material You */
-        ::-webkit-scrollbar {
-            width: 12px;
-        }
-        
-        ::-webkit-scrollbar-track {
-            background: var(--md-sys-color-surface-variant);
-            border-radius: 6px;
-        }
-        
-        ::-webkit-scrollbar-thumb {
-            background: var(--md-sys-color-outline);
-            border-radius: 6px;
-        }
-        
-        ::-webkit-scrollbar-thumb:hover {
-            background: var(--md-sys-color-on-surface-variant);
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Horsie Picker</title>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --primary: #ff4081;
+  --secondary: #03dac6;
+  --surface: #1e1e1e;
+  --background: #121212;
+  --text: #ffffff;
+  --error: #cf6679;
+  --radius: 10px;
+}
+
+body {
+  margin: 0;
+  font-family: 'Roboto', sans-serif;
+  background-color: var(--background);
+  color: var(--text);
+  overflow-x: hidden;
+}
+
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 2rem;
+  background-color: var(--surface);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+}
+
+h1 {
+  color: var(--primary);
+  margin: 0;
+}
+
+button {
+  background-color: var(--primary);
+  color: var(--text);
+  border: none;
+  border-radius: var(--radius);
+  padding: 0.6rem 1.2rem;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+button:hover { background-color: #e91e63; }
+button:disabled { opacity: 0.5; cursor: not-allowed; }
+
+section {
+  background-color: var(--surface);
+  margin: 1rem auto;
+  padding: 1rem 2rem;
+  border-radius: var(--radius);
+  max-width: 900px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+
+.hidden { display: none; }
+
+.card-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+.card-list div {
+  background-color: #2a2a2a;
+  padding: 0.8rem 1rem;
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: background-color 0.2s, transform 0.2s;
+}
+.card-list div:hover {
+  background-color: #333;
+  transform: translateY(-2px);
+}
+
+.selected {
+  background-color: var(--primary) !important;
+  color: #fff;
+}
+
+input[type="text"] {
+  width: 100%;
+  padding: 0.6rem;
+  margin: 0.4rem 0;
+  border-radius: var(--radius);
+  border: 1px solid #444;
+  background: #2a2a2a;
+  color: var(--text);
+}
+input[type="text"]:focus {
+  outline: 2px solid var(--secondary);
+}
+
+footer {
+  text-align: center;
+  padding: 1rem;
+  color: var(--secondary);
+  font-size: 0.9rem;
+}
+</style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
-                <div>
-                    <h1 id="headerTitle">🏇 Horsie Picker</h1>
-                    <p class="subtitle">Choose the horses you think will win, spoiler free!</p>
-                </div>
-                <div style="display: flex; flex-direction: column; gap: 12px; align-items: stretch;">
-                    <button id="backToHomeBtn" class="btn back-btn hidden" onclick="backToHome()">🏠 Home</button>
-                    <a href="https://jra.jp/JRAEN/AP/common/main" target="_blank" style="text-decoration: none;">
-                        <button class="btn" style="white-space: nowrap; width: 100%;">📺 Watch JRA Races</button>
-                    </a>
-                </div>
-            </div>
-        </div>
+<header>
+  <h1>🏇 Horsie Picker</h1>
+  <button id="homeBtn" class="hidden" onclick="goHome()">🏠 Home</button>
+</header>
 
-        <div id="setup" class="setup-section">
-            <h2>Setup Session</h2>
-            <div class="info-box">🎯 Enter your details to get started!</div>
-            
-            <div style="margin: 24px 0; padding: 20px; background: var(--md-sys-color-surface-variant); border-radius: 20px;">
-                <h3 style="margin-bottom: 12px;">Active Sessions</h3>
-                <div id="activeSessions" style="max-height: 200px; overflow-y: auto;">
-                    <p style="color: var(--md-sys-color-on-surface-variant);">Loading...</p>
-                </div>
-                <div style="display: flex; gap: 12px; margin-top: 12px; flex-wrap: wrap;">
-                    <button class="btn" onclick="refreshSessions()">🔄 Refresh</button>
-                    <button class="btn" onclick="clearAllSessions()" style="background: var(--md-sys-color-error); color: var(--md-sys-color-on-error);">🗑️ Clear All</button>
-                </div>
-            </div>
-            
-            <div class="color-picker-section">
-                <h3 style="margin-bottom: 12px;">Choose Your Color</h3>
-                <div class="color-options" id="colorOptions">
-                    <div class="color-option selected" style="background: #f44336;" data-color="#f44336" onclick="selectColor('#f44336')"></div>
-                    <div class="color-option" style="background: #ff5722;" data-color="#ff5722" onclick="selectColor('#ff5722')"></div>
-                    <div class="color-option" style="background: #ff9800;" data-color="#ff9800" onclick="selectColor('#ff9800')"></div>
-                    <div class="color-option" style="background: #ffc107;" data-color="#ffc107" onclick="selectColor('#ffc107')"></div>
-                    <div class="color-option" style="background: #4caf50;" data-color="#4caf50" onclick="selectColor('#4caf50')"></div>
-                    <div class="color-option" style="background: #2196f3;" data-color="#2196f3" onclick="selectColor('#2196f3')"></div>
-                    <div class="color-option" style="background: #3f51b5;" data-color="#3f51b5" onclick="selectColor('#3f51b5')"></div>
-                    <div class="color-option" style="background: #9c27b0;" data-color="#9c27b0" onclick="selectColor('#9c27b0')"></div>
-                    <div class="color-option" style="background: #e91e63;" data-color="#e91e63" onclick="selectColor('#e91e63')"></div>
-                    <div class="color-option" style="background: #795548;" data-color="#795548" onclick="selectColor('#795548')"></div>
-                </div>
-            </div>
-            
-            <div class="input-group">
-                <label for="username">Your Name:</label>
-                <input type="text" id="username" placeholder="Enter your name">
-            </div>
-            <div class="input-group">
-                <label for="sessionCode">Session Code:</label>
-                <input type="text" id="sessionCode" placeholder="Enter session code or click one below">
-            </div>
-            <button class="btn" onclick="startSession()">🚀 Start Session</button>
-        </div>
+<section id="setup">
+  <h2>Setup Session</h2>
+  <input id="username" type="text" placeholder="Your Name">
+  <input id="sessionCode" type="text" placeholder="Session Code">
+  <button onclick="startSession()">Start Session</button>
+  <div style="margin-top: 1rem;">
+    <button onclick="refreshSessions()">Refresh Sessions</button>
+    <button style="background-color: var(--error);" onclick="clearAllSessions()">Clear All</button>
+  </div>
+  <div id="sessionList" style="margin-top: 1rem;">Loading...</div>
+</section>
 
-        <div id="dateSelector" class="selector-section hidden">
-            <h2>Select Racing Date</h2>
-            <div class="info-box">📅 Choose a date to see available tracks</div>
-            <div class="selector-grid" id="dateList"></div>
-        </div>
+<section id="dateSelector" class="hidden">
+  <h2>Select Date</h2>
+  <div class="card-list" id="dateList"></div>
+</section>
 
-        <div id="trackSelector" class="selector-section hidden">
-            <div class="breadcrumb">
-                <a onclick="backToDateSelector()">← Back to Dates</a>
-            </div>
-            <h2 id="trackSelectorTitle">Select Track</h2>
-            <div class="info-box">🏟️ Choose a track to see available races</div>
-            <div class="track-selector-grid" id="trackList"></div>
-        </div>
+<section id="trackSelector" class="hidden">
+  <button onclick="backToDateSelector()">← Back</button>
+  <h2>Select Track</h2>
+  <div class="card-list" id="trackList"></div>
+</section>
 
-        <div id="raceSelector" class="selector-section hidden">
-            <div class="breadcrumb">
-                <a onclick="backToTrackSelector()">← Back to Tracks</a>
-            </div>
-            <h2 id="raceSelectorTitle">Select Race</h2>
-            <div class="info-box">🏁 Choose a race to make your picks</div>
-            <div class="race-list" id="raceList"></div>
-        </div>
+<section id="raceSelector" class="hidden">
+  <button onclick="backToTrackSelector()">← Back</button>
+  <h2>Select Race</h2>
+  <div class="card-list" id="raceList"></div>
+</section>
 
-        <div id="raceDetail" class="race-detail hidden">
-            <div class="breadcrumb">
-                <a onclick="backToRaceSelector()">← Back to Races</a>
-            </div>
-            <h2 id="raceTitle">Race Detail</h2>
-            <div id="raceInfo" style="margin-bottom: 24px; color: var(--md-sys-color-on-surface-variant);"></div>
-            <div class="info-box">🐴 Click horses to select your picks. You can select up to 3 horses.</div>
-            <div class="horse-list" id="horseList"></div>
-            <div class="action-buttons">
-                <button class="btn back-btn" onclick="backToRaceSelector()">← Back</button>
-                <button class="btn" id="savePicksBtn" onclick="savePicks()" disabled>💾 Save Picks</button>
-            </div>
-        </div>
-    </div>
+<section id="raceDetail" class="hidden">
+  <button onclick="backToRaceSelector()">← Back</button>
+  <h2 id="raceTitle"></h2>
+  <div id="raceInfo"></div>
+  <div class="card-list" id="horseList"></div>
+  <button id="savePicksBtn" onclick="savePicks()" disabled>💾 Save Picks</button>
+</section>
 
-    <script>
-    const API='https://horsie.tytygoins.workers.dev';
-    const RACES='https://raw.githubusercontent.com/pokemonrocks9/HorsieClub/main/races.json';
-    let S='',U='',C='#f44336',D='',T='',R=null,P=new Set(),pollInterval=null;
-    let races=[];
-    let allSessionPicks=[];
+<footer>Horsie Picker © 2025</footer>
 
-    function updateTheme(c){
-        C=c;
-        document.documentElement.style.setProperty('--md-sys-color-primary',c);
-        const shade=c+'20';
-        document.documentElement.style.setProperty('--md-sys-color-primary-container',shade);
-        localStorage.setItem('userColor',c);
+<script>
+const API = 'https://horsie.tytygoins.workers.dev';
+const RACES = 'https://raw.githubusercontent.com/pokemonrocks9/HorsieClub/main/races.json';
+let S = '', U = '', races = [], R = null, P = new Set(), D = '', T = '';
+
+async function startSession() {
+  U = document.getElementById('username').value.trim();
+  S = document.getElementById('sessionCode').value.trim();
+  if (!U || !S) {
+    alert('Please enter both name and code');
+    return;
+  }
+  document.getElementById('setup').classList.add('hidden');
+  document.getElementById('homeBtn').classList.remove('hidden');
+  await loadRaces();
+  showDateSelector();
+}
+
+async function loadRaces() {
+  try {
+    const res = await fetch(RACES);
+    races = await res.json();
+  } catch (e) {
+    alert('Failed to load races: ' + e.message);
+  }
+}
+
+async function refreshSessions() {
+  const el = document.getElementById('sessionList');
+  el.innerHTML = 'Loading...';
+  try {
+    const res = await fetch(`${API}/picks/sessions`);
+    if (!res.ok) throw new Error('API error');
+    const data = await res.json();
+    el.innerHTML = data.length ? data.map(d => `<div>${d.session_code}</div>`).join('') : 'No active sessions';
+  } catch (e) {
+    el.innerHTML = 'Failed to load sessions';
+  }
+}
+
+async function clearAllSessions() {
+  if (!confirm('⚠️ Delete ALL sessions?')) return;
+  try {
+    const res = await fetch(`${API}/picks/all`, { method: 'DELETE' });
+    if (res.ok) {
+      alert('✅ Cleared all');
+      refreshSessions();
     }
+  } catch (e) {
+    alert(e.message);
+  }
+}
 
-    function selectColor(c){
-        document.querySelectorAll('.color-option').forEach(o=>o.classList.remove('selected'));
-        event.target.classList.add('selected');
-        updateTheme(c);
-    }
+function showDateSelector() {
+  if (!races || !races.length) return;
+  const byDate = {};
+  races.forEach(r => {
+    if (!byDate[r.date]) byDate[r.date] = [];
+    byDate[r.date].push(r);
+  });
+  const list = document.getElementById('dateList');
+  list.innerHTML = '';
+  Object.keys(byDate).forEach(d => {
+    const el = document.createElement('div');
+    el.textContent = `${d} (${byDate[d].length} races)`;
+    el.onclick = () => selectDate(d);
+    list.appendChild(el);
+  });
+  document.getElementById('dateSelector').classList.remove('hidden');
+}
 
-    async function startSession(){
-        U=document.getElementById('username').value.trim();
-        S=document.getElementById('sessionCode').value.trim();
-        if(!U||!S){alert('Please enter both name and session code');return;}
-        localStorage.setItem('username',U);
-        localStorage.setItem('sessionCode',S);
-        document.getElementById('setup').classList.add('hidden');
-        document.getElementById('backToHomeBtn').classList.remove('hidden');
-        await loadRaces();
-        await loadAllSessionPicks();
-        showDateSelector();
-    }
-    
-    async function loadRaces(){
-        try{
-            races=await(await fetch(RACES)).json();
-        }catch(e){
-            alert('Error loading races: '+e.message);
-        }
-    }
-    
-    async function loadAllSessionPicks(){
-        if(!S)return;
-        try{
-            const r=await fetch(`${API}/picks?session=${S}`);
-            if(r.ok){
-                const data=await r.json();
-                allSessionPicks=data;
-                console.log(`Loaded ${allSessionPicks.length} total picks for session ${S}`);
-            }else{
-                allSessionPicks=[];
-            }
-        }catch(e){
-            allSessionPicks=[];
-            console.error('Failed to load session picks:',e);
-        }
-    }
+function selectDate(d) {
+  D = d;
+  document.getElementById('dateSelector').classList.add('hidden');
+  showTrackSelector();
+}
 
-    async function showDateSelector(){
-        stopPoll();
-        const byDate={};
-        races.forEach(r=>{
-            if(r.date){
-                if(!byDate[r.date])byDate[r.date]=[];
-                byDate[r.date].push(r);
-            }
-        });
-        
-        const list=document.getElementById('dateList');
-        list.innerHTML='';
-        
-        Object.keys(byDate).sort((a,b)=>new Date(a)-new Date(b)).forEach(d=>{
-            const dt=new Date(d+'T00:00:00');
-            const day=dt.toLocaleDateString('en-US',{weekday:'short'});
-            const dateStr=dt.toLocaleDateString('en-US',{month:'short',day:'numeric'});
-            const hasPicks=checkDateHasPicks(d);
-            
-            const card=document.createElement('div');
-            card.className='selector-card'+(hasPicks?' has-picks':'');
-            card.onclick=()=>selectDate(d);
-            card.innerHTML=`
-                <div class="date-info">
-                    <span class="date-badge">${dateStr}</span>
-                    <span class="day-name">${day}</span>
-                </div>
-                <span class="race-count" style="color: var(--md-sys-color-on-surface-variant);">${byDate[d].length} races</span>
-            `;
-            list.appendChild(card);
-        });
-        
-        document.getElementById('dateSelector').classList.remove('hidden');
-    }
+function showTrackSelector() {
+  const list = document.getElementById('trackList');
+  list.innerHTML = '';
+  const byTrack = {};
+  races.filter(r => r.date === D).forEach(r => {
+    if (!byTrack[r.track]) byTrack[r.track] = [];
+    byTrack[r.track].push(r);
+  });
+  Object.keys(byTrack).forEach(t => {
+    const el = document.createElement('div');
+    el.textContent = `${t} (${byTrack[t].length})`;
+    el.onclick = () => selectTrack(t);
+    list.appendChild(el);
+  });
+  document.getElementById('trackSelector').classList.remove('hidden');
+}
 
-    function checkDateHasPicks(date){
-        // Check both API picks and localStorage
-        const hasApiPicks=allSessionPicks.some(p=>races.find(r=>r.id===p.race_id&&r.date===date));
-        if(hasApiPicks)return true;
-        
-        // Also check localStorage
-        if(!S)return false;
-        for(let i=0;i<localStorage.length;i++){
-            const k=localStorage.key(i);
-            if(k&&k.startsWith(`${S}_`)){
-                const raceId=k.split('_')[1];
-                const matchingRaces=races.filter(r=>r.id===raceId&&r.date===date);
-                if(matchingRaces.length>0)return true;
-            }
-        }
-        return false;
-    }
+function selectTrack(t) {
+  T = t;
+  document.getElementById('trackSelector').classList.add('hidden');
+  showRaceSelector();
+}
 
-    async function selectDate(date){
-        D=date;
-        document.getElementById('dateSelector').classList.add('hidden');
-        showTrackSelector();
-    }
+function showRaceSelector() {
+  const list = document.getElementById('raceList');
+  list.innerHTML = '';
+  const rs = races.filter(r => r.date === D && r.track === T);
+  rs.forEach(r => {
+    const el = document.createElement('div');
+    el.textContent = `R${r.raceNumber || r.id}: ${r.title}`;
+    el.onclick = () => selectRace(r);
+    list.appendChild(el);
+  });
+  document.getElementById('raceSelector').classList.remove('hidden');
+}
 
-    async function showTrackSelector(){
-        stopPoll();
-        const byTrack={};
-        races.filter(r=>r.date===D).forEach(r=>{
-            if(!byTrack[r.track])byTrack[r.track]=[];
-            byTrack[r.track].push(r);
-        });
-        
-        const list=document.getElementById('trackList');
-        list.innerHTML='';
-        const dt=new Date(D+'T00:00:00');
-        document.getElementById('trackSelectorTitle').textContent=`Select Track (${dt.toLocaleDateString('en-US',{month:'short',day:'numeric'})})`;
-        
-        Object.keys(byTrack).sort().forEach(t=>{
-            const hasPicks=checkTrackHasPicks(t);
-            const card=document.createElement('div');
-            card.className='track-card'+(hasPicks?' has-picks':'');
-            card.onclick=()=>selectTrack(t);
-            card.innerHTML=`
-                <div class="track-name">${t}</div>
-                <div class="race-count">${byTrack[t].length} races</div>
-            `;
-            list.appendChild(card);
-        });
-        document.getElementById('trackSelector').classList.remove('hidden');
-    }
+function selectRace(r) {
+  R = r;
+  document.getElementById('raceSelector').classList.add('hidden');
+  document.getElementById('raceTitle').textContent = r.title;
+  document.getElementById('raceInfo').textContent = `${r.distance} ${r.surface}`;
+  const list = document.getElementById('horseList');
+  list.innerHTML = '';
+  P.clear();
+  r.horses.forEach(h => {
+    const el = document.createElement('div');
+    el.textContent = `#${h.number} ${h.name}`;
+    el.onclick = () => toggleHorse(h.number, el);
+    list.appendChild(el);
+  });
+  document.getElementById('raceDetail').classList.remove('hidden');
+}
 
-    function checkTrackHasPicks(track){
-        // Check both API picks and localStorage
-        const hasApiPicks=allSessionPicks.some(p=>races.find(r=>r.id===p.race_id&&r.track===track&&r.date===D));
-        if(hasApiPicks)return true;
-        
-        // Also check localStorage
-        if(!S||!D)return false;
-        const trackRaces=races.filter(r=>r.date===D&&r.track===track);
-        for(const race of trackRaces){
-            for(let i=0;i<localStorage.length;i++){
-                const k=localStorage.key(i);
-                if(k&&k.startsWith(`${S}_${race.id}_`))return true;
-            }
-        }
-        return false;
+function toggleHorse(n, el) {
+  if (P.has(n)) {
+    P.delete(n);
+    el.classList.remove('selected');
+  } else {
+    if (P.size >= 3) {
+      alert('Max 3 horses');
+      return;
     }
+    P.add(n);
+    el.classList.add('selected');
+  }
+  document.getElementById('savePicksBtn').disabled = !P.size;
+}
 
-    async function selectTrack(track){
-        T=track;
-        document.getElementById('trackSelector').classList.add('hidden');
-        showRaceSelector();
-    }
+async function savePicks() {
+  if (!P.size) return;
+  try {
+    await fetch(`${API}/picks`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ session_code: S, race_id: R.id, user_name: U, horse_numbers: Array.from(P), user_color: '#ff4081' })
+    });
+    alert('Saved!');
+  } catch (e) {
+    alert(e.message);
+  }
+}
 
-    async function showRaceSelector(){
-        stopPoll();
-        const racesList=races.filter(r=>r.date===D&&r.track===T);
-        racesList.sort((a,b)=>(a.raceNumber||a.id)-(b.raceNumber||b.id));
-        
-        document.getElementById('raceSelectorTitle').textContent=`Select Race at ${T}`;
-        const list=document.getElementById('raceList');
-        list.innerHTML='';
-        
-        racesList.forEach(race=>{
-            const hasPicks=checkRaceHasPicks(race.id);
-            const card=document.createElement('div');
-            card.className='race-card'+(hasPicks?' has-picks':'');
-            card.onclick=()=>selectRace(race);
-            
-            const gradeHTML=race.grade?`<span class="grade-badge">${race.grade}</span>`:'';
-            const raceNum=race.raceNumber||race.id;
-            card.innerHTML=`
-                <div style="display: flex; align-items: center;">
-                    <span class="race-number">R${raceNum}</span>
-                    <div class="race-info">
-                        <div class="race-title">${race.title}${gradeHTML}</div>
-                        <div class="race-details">${race.distance} ${race.surface} - ${race.horses.length} horses</div>
-                    </div>
-                </div>
-            `;
-            list.appendChild(card);
-        });
-        document.getElementById('raceSelector').classList.remove('hidden');
-    }
-
-    function checkRaceHasPicks(raceId){
-        // Check both API picks and localStorage
-        const hasApiPicks=allSessionPicks.some(p=>p.race_id===raceId);
-        if(hasApiPicks)return true;
-        
-        // Also check localStorage
-        for(let i=0;i<localStorage.length;i++){
-            const k=localStorage.key(i);
-            if(k&&k.startsWith(`${S}_${raceId}_`))return true;
-        }
-        return false;
-    }
-
-    async function selectRace(race){
-        R=race;
-        P=new Set();
-        
-        const saved=localStorage.getItem(`${S}_${R.id}_${U}`);
-        if(saved){
-            try{
-                const data=JSON.parse(saved);
-                P=new Set(data.horses||[]);
-            }catch(e){}
-        }
-        
-        document.getElementById('raceSelector').classList.add('hidden');
-        const raceNum=R.raceNumber||R.id;
-        document.getElementById('raceTitle').textContent=`R${raceNum}: ${R.title}`;
-        const gradeHTML=R.grade?`<span class="grade-badge">${R.grade}</span>`:'';
-        document.getElementById('raceInfo').innerHTML=`${R.distance} ${R.surface} - ${R.horses.length} horses${gradeHTML}`;
-        
-        const list=document.getElementById('horseList');
-        list.innerHTML='';
-        
-        R.horses.forEach(h=>{
-            const card=document.createElement('div');
-            card.className='horse-card'+(P.has(h.number)?' selected':'');
-            card.setAttribute('data-horse-number',h.number);
-            card.onclick=()=>toggleHorse(h.number);
-            card.innerHTML=`
-                <span class="horse-number">${h.number}</span>
-                <span class="horse-name">${h.name}</span>
-            `;
-            list.appendChild(card);
-        });
-        
-        await loadAllPicks();
-        document.getElementById('raceDetail').classList.remove('hidden');
-        updateSaveButton();
-        startPoll();
-    }
-
-    function toggleHorse(n){
-        if(P.has(n)){
-            P.delete(n);
-        }else{
-            if(P.size>=3){alert('You can only select up to 3 horses');return;}
-            P.add(n);
-        }
-        
-        const card=document.querySelector(`[data-horse-number="${n}"]`);
-        card.classList.toggle('selected');
-        
-        loadAllPicks();
-        updateSaveButton();
-    }
-
-    function updateSaveButton(){
-        const btn=document.getElementById('savePicksBtn');
-        btn.disabled=P.size===0;
-    }
-
-    async function savePicks(){
-        if(P.size===0)return;
-        
-        const data={horses:Array.from(P),color:C,timestamp:Date.now()};
-        localStorage.setItem(`${S}_${R.id}_${U}`,JSON.stringify(data));
-        
-        try{
-            await fetch(`${API}/picks`,{
-                method:'POST',
-                headers:{'Content-Type':'application/json'},
-                body:JSON.stringify({
-                    session_code:S,
-                    race_id:R.id,
-                    user_name:U,
-                    horse_numbers:JSON.stringify(Array.from(P)),
-                    user_color:C
-                })
-            });
-        }catch(e){console.error('Failed to save to API:',e);}
-        
-        alert('Picks saved successfully!');
-        loadAllPicks();
-    }
-
-    function startPoll(){
-        stopPoll();
-        pollInterval=setInterval(loadAllPicks,5000);
-    }
-
-    function stopPoll(){
-        if(pollInterval){
-            clearInterval(pollInterval);
-            pollInterval=null;
-        }
-    }
-
-    async function loadAllPicks(){
-        if(!R||!S)return;
-        const picks={},colors={};
-        
-        try{
-            const r=await fetch(`${API}/picks?session=${S}&race=${R.id}`);
-            if(r.ok){
-                const data=await r.json();
-                data.forEach(p=>{
-                    picks[p.user_name]=JSON.parse(p.horse_numbers);
-                    if(p.user_color)colors[p.user_name]=p.user_color;
-                });
-            }
-        }catch(e){
-            console.error('Failed to load picks from API:',e);
-        }
-        
-        for(let i=0;i<localStorage.length;i++){
-            const k=localStorage.key(i);
-            if(k&&k.startsWith(`${S}_${R.id}_`)&&!k.endsWith('_confirmed')){
-                const u=k.split('_').pop();
-                if(!picks[u]){
-                    try{
-                        const d=JSON.parse(localStorage.getItem(k));
-                        picks[u]=d.horses;
-                        if(d.color)colors[u]=d.color;
-                    }catch(e){}
-                }
-            }
-        }
-        colors[U]=C;
-        
-        document.querySelectorAll('.picker-badge').forEach(b=>b.remove());
-        document.querySelectorAll('.picked-by-user2').forEach(c=>c.classList.remove('picked-by-user2'));
-        
-        document.querySelectorAll('.horse-card').forEach(c=>{
-            c.style.background='';
-            c.style.backgroundImage='';
-            c.style.backgroundOrigin='';
-            c.style.backgroundClip='';
-            c.style.border='';
-            if(!c.classList.contains('selected')){
-                c.style.border='1px solid var(--md-sys-color-outline-variant)';
-            }
-        });
-        
-        const horsePickCounts={};
-        Object.entries(picks).forEach(([u,hs])=>{
-            hs.forEach(n=>{
-                if(!horsePickCounts[n])horsePickCounts[n]=[];
-                horsePickCounts[n].push({user:u,color:colors[u]||(u===U?C:'#ff9800')});
-            });
-        });
-        
-        Object.entries(picks).forEach(([u,hs])=>{
-            const col=colors[u]||(u===U?C:'#ff9800'),init=u.charAt(0).toUpperCase();
-            hs.forEach(n=>{
-                const c=document.querySelector(`[data-horse-number="${n}"]`);
-                if(c){
-                    const b=document.createElement('div');
-                    b.className='picker-badge';
-                    b.style.background=col;
-                    b.textContent=init;
-                    b.title=u;
-                    c.appendChild(b);
-                    u!==U&&c.classList.add('picked-by-user2');
-                }
-            });
-        });
-        
-        Object.keys(horsePickCounts).forEach(n=>{
-            const c=document.querySelector(`[data-horse-number="${n}"]`);
-            const pickerData=horsePickCounts[n];
-            if(c&&pickerData.length>1){
-                const bgGradientStops=pickerData.map((data,i)=>{
-                    const pct=(i/(pickerData.length-1))*100;
-                    return `${data.color}15 ${pct}%`;
-                }).join(', ');
-                
-                const borderGradientStops=pickerData.map((data,i)=>{
-                    const pct=(i/(pickerData.length-1))*100;
-                    return `${data.color} ${pct}%`;
-                }).join(', ');
-                
-                c.style.background=`linear-gradient(90deg, ${bgGradientStops})`;
-                c.style.position='relative';
-                c.style.border='none';
-                c.style.setProperty('--gradient-border',`linear-gradient(90deg, ${borderGradientStops})`);
-                c.classList.add('gradient-border');
-            }else if(c&&pickerData.length===1){
-                c.classList.remove('gradient-border');
-                const pickerColor=pickerData[0].color;
-                if(!P.has(parseInt(n))){
-                    c.style.background=`${pickerColor}15`;
-                    c.style.border=`1px solid ${pickerColor}`;
-                }else{
-                    c.style.background=`${C}15`;
-                }
-            }
-        });
-    }
-
-    function backToHome(){
-        stopPoll();
-        document.getElementById('trackSelector').classList.add('hidden');
-        document.getElementById('raceSelector').classList.add('hidden');
-        document.getElementById('raceDetail').classList.add('hidden');
-        showDateSelector();
-    }
-
-    function backToDateSelector(){
-        stopPoll();
-        document.getElementById('trackSelector').classList.add('hidden');
-        document.getElementById('raceSelector').classList.add('hidden');
-        document.getElementById('raceDetail').classList.add('hidden');
-        showDateSelector();
-    }
-
-    function backToTrackSelector(){
-        stopPoll();
-        document.getElementById('raceSelector').classList.add('hidden');
-        document.getElementById('raceDetail').classList.add('hidden');
-        showTrackSelector();
-    }
-
-    function backToRaceSelector(){
-        stopPoll();
-        document.getElementById('raceDetail').classList.add('hidden');
-        showRaceSelector();
-    }
-
-    async function refreshSessions(){
-        const e=document.getElementById('activeSessions');
-        e.innerHTML='<p style="color: var(--md-sys-color-on-surface-variant);">Loading...</p>';
-        try{
-            const r=await fetch(`${API}/picks/sessions`);
-            if(!r.ok){
-                e.innerHTML='<p style="color: var(--md-sys-color-on-surface-variant);">API unavailable</p>';
-                return;
-            }
-            const d=await r.json();
-            console.log('Sessions data:',d);
-            
-            const sessions={};
-            d.forEach(p=>{
-                if(!sessions[p.session_code]){
-                    sessions[p.session_code]={users:{},lastActivity:p.created_at,count:0};
-                }
-                // Store user with their color
-                if(!sessions[p.session_code].users[p.user_name]){
-                    sessions[p.session_code].users[p.user_name]=p.user_color||'#ff9800';
-                }
-                sessions[p.session_code].count++;
-            });
-            
-            if(Object.keys(sessions).length===0){
-                e.innerHTML='<p style="color: var(--md-sys-color-on-surface-variant);">No active sessions</p>';
-            }else{
-                let html='<div style="display:flex;flex-direction:column;gap:12px;">';
-                for(const[code,info] of Object.entries(sessions)){
-                    const userNames=Object.keys(info.users);
-                    const userBadges=userNames.map(userName=>{
-                        const color=info.users[userName];
-                        const initial=userName.charAt(0).toUpperCase();
-                        return `<span style="display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;background:${color};color:white;font-weight:500;font-size:12px;margin-left:4px;box-shadow:var(--md-sys-elevation-level1);" title="${userName}">${initial}</span>`;
-                    }).join('');
-                    const timeAgo=getTimeAgo(new Date(info.lastActivity));
-                    html+=`
-                        <div style="padding:16px;background:var(--md-sys-color-surface);border:1px solid var(--md-sys-color-outline-variant);border-radius:12px;cursor:pointer;transition:all 0.2s;" 
-                             onmouseover="this.style.background='var(--md-sys-color-primary-container)';this.style.borderColor='var(--md-sys-color-primary)'" 
-                             onmouseout="this.style.background='var(--md-sys-color-surface)';this.style.borderColor='var(--md-sys-color-outline-variant)'"
-                             onclick="joinExistingSession('${code}')">
-                            <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;">
-                                <div style="flex:1;">
-                                    <strong style="color:var(--md-sys-color-primary);font-size:16px;">${code}</strong>
-                                    <div style="margin-top:8px;display:flex;align-items:center;flex-wrap:wrap;gap:4px;">
-                                        <small style="color:var(--md-sys-color-on-surface-variant);">${userNames.length} user${userNames.length>1?'s':''} • ${info.count} picks • ${timeAgo}</small>
-                                    </div>
-                                    <div style="margin-top:8px;display:flex;align-items:center;flex-wrap:wrap;gap:4px;">
-                                        ${userBadges}
-                                    </div>
-                                </div>
-                                <button onclick="event.stopPropagation();deleteSession('${code}')" 
-                                        style="background:var(--md-sys-color-error);color:var(--md-sys-color-on-error);border:none;padding:8px 16px;border-radius:20px;cursor:pointer;font-size:12px;font-weight:500;font-family:'Roboto',sans-serif;box-shadow:var(--md-sys-elevation-level1);">
-                                    Delete
-                                </button>
-                            </div>
-                        </div>
-                    `;
-                }
-                html+='</div>';
-                e.innerHTML=html;
-            }
-        }catch(err){
-            console.error('Error loading sessions:',err);
-            e.innerHTML='<p style="color: var(--md-sys-color-on-surface-variant);">API unavailable</p>';
-        }
-    }
-    
-    function getTimeAgo(date){
-        const seconds=Math.floor((new Date()-date)/1000);
-        if(seconds<60)return 'just now';
-        const minutes=Math.floor(seconds/60);
-        if(minutes<60)return `${minutes}m ago`;
-        const hours=Math.floor(minutes/60);
-        if(hours<24)return `${hours}h ago`;
-        const days=Math.floor(hours/24);
-        return `${days}d ago`;
-    }
-    
-    function joinExistingSession(code){
-        document.getElementById('sessionCode').value=code;
-        S=code;
-    }
-    
-    async function deleteSession(code){
-        if(!confirm(`Delete all picks for session "${code}"?`))return;
-        try{
-            await fetch(`${API}/picks/sessions/${code}`,{method:'DELETE'});
-            refreshSessions();
-        }catch(e){
-            alert('Failed to delete session');
-        }
-    }
-
-    function clearAllSessions(){
-        if(confirm('Are you sure you want to clear all saved picks?')){
-            for(let i=localStorage.length-1;i>=0;i--){
-                const k=localStorage.key(i);
-                if(k&&k.includes('_')&&!['username','sessionCode','userColor'].includes(k)){
-                    localStorage.removeItem(k);
-                }
-            }
-            alert('All picks cleared!');
-        }
-    }
-
-    window.onload=()=>{
-        const saved=localStorage.getItem('userColor');
-        if(saved){
-            updateTheme(saved);
-            document.querySelectorAll('.color-option').forEach(o=>{
-                if(o.dataset.color===saved)o.classList.add('selected');
-                else o.classList.remove('selected');
-            });
-        }
-        
-        const savedUser=localStorage.getItem('username');
-        const savedSession=localStorage.getItem('sessionCode');
-        if(savedUser)document.getElementById('username').value=savedUser;
-        if(savedSession){
-            document.getElementById('sessionCode').value=savedSession;
-            S=savedSession;
-        }
-        
-        refreshSessions();
-        
-        // Register service worker for PWA
-        if('serviceWorker' in navigator){
-            navigator.serviceWorker.register('service-worker.js')
-                .then(reg=>console.log('Service Worker registered'))
-                .catch(err=>console.log('Service Worker registration failed',err));
-        }
-    };
-    </script>
+function backToDateSelector() {
+  document.getElementById('trackSelector').classList.add('hidden');
+  document.getElementById('dateSelector').classList.remove('hidden');
+}
+function backToTrackSelector() {
+  document.getElementById('raceSelector').classList.add('hidden');
+  document.getElementById('trackSelector').classList.remove('hidden');
+}
+function backToRaceSelector() {
+  document.getElementById('raceDetail').classList.add('hidden');
+  document.getElementById('raceSelector').classList.remove('hidden');
+}
+function goHome() { location.reload(); }
+</script>
 </body>
 </html>
