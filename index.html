@@ -985,21 +985,16 @@
     }
 
     async function loadAllPicks(){
-        if(!R||!S){
-            console.log('loadAllPicks: Missing R or S',{R,S});
-            return;
-        }
+        if(!R||!S)return;
         
         const picks={},colors={};
         
         try{
             const r=await fetch(`${API}/picks?session=${S}&race=${R.id}`);
             if(r.ok){
-                const data=await r.json();
-                console.log('Loaded picks from API:',data.length,'picks');
-                data.forEach(p=>{
+                (await r.json()).forEach(p=>{
                     picks[p.user_name]=JSON.parse(p.horse_numbers);
-                    if(p.user_color)colors[p.user_name]=p.user_color;
+                    p.user_color&&(colors[p.user_name]=p.user_color);
                 });
             }
         }catch(e){
@@ -1011,30 +1006,29 @@
             if(k&&k.startsWith(`${S}_${R.id}_`)&&!k.endsWith('_confirmed')){
                 const u=k.split('_').pop();
                 if(!picks[u]){
-                    try{
-                        const d=JSON.parse(localStorage.getItem(k));
-                        picks[u]=d.horses;
-                        if(d.color)colors[u]=d.color;
-                    }catch(e){}
+                    const d=JSON.parse(localStorage.getItem(k));
+                    picks[u]=d.horses;
+                    d.color&&(colors[u]=d.color);
                 }
             }
         }
         colors[U]=C;
         
-        console.log('Total picks to display:',Object.keys(picks).length,'users');
-        
-        // Remove all badges and reset styles
+        // Remove all badges first
         document.querySelectorAll('.picker-badge').forEach(b=>b.remove());
         document.querySelectorAll('.picked-by-user2').forEach(c=>c.classList.remove('picked-by-user2'));
-        document.querySelectorAll('.gradient-border').forEach(c=>c.classList.remove('gradient-border'));
         
+        // Reset all backgrounds and borders
         document.querySelectorAll('.horse-card').forEach(c=>{
             c.style.background='';
             c.style.backgroundImage='';
             c.style.backgroundOrigin='';
             c.style.backgroundClip='';
-            c.style.border='1px solid var(--md-sys-color-outline-variant)';
-            c.style.removeProperty('--gradient-border');
+            c.style.border='';
+            c.classList.remove('gradient-border');
+            if(!c.classList.contains('selected')){
+                c.style.border='1px solid var(--md-sys-color-outline-variant)';
+            }
         });
         
         // Track horses picked by multiple users
@@ -1058,17 +1052,17 @@
                     b.textContent=init;
                     b.title=u;
                     c.appendChild(b);
-                    if(u!==U)c.classList.add('picked-by-user2');
+                    u!==U&&c.classList.add('picked-by-user2');
                 }
             });
         });
         
-        // Apply gradients and styling after all badges are added
+        // Apply gradients after all badges are added
         Object.keys(horsePickCounts).forEach(n=>{
             const c=document.querySelector(`[data-horse-number="${n}"]`);
             const pickerData=horsePickCounts[n];
             if(c&&pickerData.length>1){
-                // Multiple pickers - create gradient
+                // Multiple pickers - create smooth gradient with blended colors (lighter)
                 const bgGradientStops=pickerData.map((data,i)=>{
                     const pct=(i/(pickerData.length-1))*100;
                     return `${data.color}15 ${pct}%`;
@@ -1079,12 +1073,19 @@
                     return `${data.color} ${pct}%`;
                 }).join(', ');
                 
+                // Set light background gradient
                 c.style.background=`linear-gradient(90deg, ${bgGradientStops})`;
+                
+                // Use pseudo-element trick for rounded gradient border
                 c.style.position='relative';
+                c.style.background=`linear-gradient(90deg, ${bgGradientStops})`;
                 c.style.border='none';
                 c.style.setProperty('--gradient-border',`linear-gradient(90deg, ${borderGradientStops})`);
+                
+                // Add class to trigger pseudo-element
                 c.classList.add('gradient-border');
             }else if(c&&pickerData.length===1){
+                // Single picker - show their color with light background and solid border
                 c.classList.remove('gradient-border');
                 const pickerColor=pickerData[0].color;
                 if(!P.has(parseInt(n))){
@@ -1094,18 +1095,7 @@
                 }else{
                     // Selected by current user
                     c.style.background=`${C}15`;
-                    c.style.border=`1px solid ${C}`;
                 }
-            }
-        });
-        
-        // Make sure current user's selected cards have proper styling
-        P.forEach(horseNum=>{
-            const card=document.querySelector(`[data-horse-number="${horseNum}"]`);
-            if(card&&!horsePickCounts[horseNum]){
-                // Only this user picked it
-                card.style.background=`${C}15`;
-                card.style.border=`1px solid ${C}`;
             }
         });
     }
